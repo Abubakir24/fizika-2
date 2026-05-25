@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="uz" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fizika II – Yakuniy Test</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* ── DARK THEME (default) ── */
+  [data-theme="dark"] {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --border: #1e2d45;
+    --accent: #3b82f6;
+    --accent2: #60a5fa;
+    --green: #10b981;
+    --red: #ef4444;
+    --yellow: #f59e0b;
+    --finish: #f97316;
+    --finish2: #fb923c;
+    --text: #e2e8f0;
+    --text2: #94a3b8;
+    --text3: #64748b;
+    --star-opacity: 0.3;
+    --shadow: rgba(0,0,0,0.4);
+    --header-bg: rgba(10,14,26,0.95);
+  }
+  /* ── LIGHT THEME ── */
+  [data-theme="light"] {
+    --bg: #f0f4ff;
+    --surface: #ffffff;
+    --surface2: #f1f5fb;
+    --border: #d1dbed;
+    --accent: #2563eb;
+    --accent2: #3b82f6;
+    --green: #059669;
+    --red: #dc2626;
+    --yellow: #d97706;
+    --finish: #ea580c;
+    --finish2: #f97316;
+    --text: #0f172a;
+    --text2: #475569;
+    --text3: #94a3b8;
+    --star-opacity: 0;
+    --shadow: rgba(0,0,0,0.1);
+    --header-bg: rgba(240,244,255,0.97);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: 'IBM Plex Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    transition: background 0.3s, color 0.3s;
+  }
+
+  .stars { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
+  .star {
+    position: absolute; width: 2px; height: 2px; background: white;
+    border-radius: 50%; opacity: var(--star-opacity);
+    animation: twinkle 3s infinite alternate;
+  }
+  @keyframes twinkle { from { opacity: 0.1; } to { opacity: 0.5; } }
+
+  #app { position: relative; z-index: 1; flex: 1; display: flex; flex-direction: column; }
+
+  .screen { display: none; flex: 1; flex-direction: column; }
+  .screen.active { display: flex; }
+
+  /* ── THEME TOGGLE ── */
+  .theme-btn {
+    position: fixed; top: 14px; right: 16px; z-index: 999;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 50px;
+    padding: 6px 12px;
+    font-size: 13px;
+    cursor: pointer;
+    color: var(--text2);
+    font-family: inherit;
+    display: flex; align-items: center; gap: 6px;
+    transition: all 0.2s;
+    box-shadow: 0 2px 8px var(--shadow);
+  }
+  .theme-btn:hover { border-color: var(--accent); color: var(--accent2); }
+
+  /* ── LANDING ── */
+  #screen-landing {
+    align-items: center; justify-content: center;
+    padding: 40px 20px; gap: 32px;
+  }
+  .logo-badge { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .logo-icon {
+    width: 68px; height: 68px;
+    background: linear-gradient(135deg, var(--accent) 0%, #7c3aed 100%);
+    border-radius: 20px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 30px;
+    box-shadow: 0 0 40px rgba(59,130,246,0.3);
+    animation: pulse-glow 2.5s infinite alternate;
+  }
+  @keyframes pulse-glow {
+    from { box-shadow: 0 0 20px rgba(59,130,246,0.2); }
+    to   { box-shadow: 0 0 50px rgba(59,130,246,0.45); }
+  }
+  .logo-title { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; }
+  .logo-sub { font-size: 13px; color: var(--text2); font-family: 'IBM Plex Mono', monospace; }
+
+  .landing-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 36px;
+    max-width: 460px; width: 100%;
+    box-shadow: 0 8px 32px var(--shadow);
+  }
+  .landing-card h2 { font-size: 18px; font-weight: 600; margin-bottom: 6px; }
+  .landing-card p { color: var(--text2); font-size: 13px; margin-bottom: 24px; line-height: 1.6; }
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 24px; }
+  .info-item {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 14px;
+  }
+  .info-item .lbl { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 3px; }
+  .info-item .val { font-size: 18px; font-weight: 600; color: var(--accent2); font-family: 'IBM Plex Mono', monospace; }
+  .form-group { margin-bottom: 18px; }
+  .form-group label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; color: var(--text2); }
+  .form-group input {
+    width: 100%; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 11px 14px; font-size: 15px;
+    font-family: inherit; color: var(--text); outline: none; transition: border-color 0.2s;
+  }
+  .form-group input:focus { border-color: var(--accent); }
+  .form-group input::placeholder { color: var(--text3); }
+  .btn-start {
+    width: 100%; background: linear-gradient(135deg, var(--accent), #7c3aed);
+    border: none; border-radius: 10px; padding: 13px;
+    font-size: 15px; font-weight: 600; color: white; cursor: pointer; transition: all 0.2s;
+  }
+  .btn-start:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(59,130,246,0.35); }
+
+  /* ── TEST SCREEN ── */
+  #screen-test { padding: 0; }
+
+  .test-header {
+    position: sticky; top: 0; z-index: 10;
+    background: var(--header-bg);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 20px;
+  }
+
+  /* Top row: name + timer */
+  .header-top {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 0 8px;
+    gap: 12px;
+  }
+  .header-name { font-size: 13px; font-weight: 600; color: var(--text2); }
+  .timer {
+    display: flex; align-items: center; gap: 5px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 5px 12px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 15px; font-weight: 600;
+    transition: all 0.3s; white-space: nowrap;
+  }
+  .timer.warning { border-color: var(--yellow); color: var(--yellow); }
+  .timer.danger   { border-color: var(--red);    color: var(--red);    animation: blink 1s infinite; }
+  @keyframes blink { 50% { opacity: 0.5; } }
+
+  /* Q-number pills row */
+  .q-numbers-row {
+    display: flex; flex-wrap: wrap; gap: 5px;
+    padding: 6px 0 10px;
+    justify-content: flex-start;
+  }
+  .qnum-pill {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    border: 1.5px solid var(--border);
+    background: var(--surface2);
+    font-size: 12px; font-weight: 600;
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--text2);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  .qnum-pill:hover   { border-color: var(--accent2); color: var(--accent2); }
+  .qnum-pill.answered { background: rgba(59,130,246,0.18); border-color: var(--accent); color: var(--accent2); }
+  .qnum-pill.current  { background: var(--accent); border-color: var(--accent); color: white; }
+  .qnum-pill.correct  { background: rgba(16,185,129,0.2); border-color: var(--green); color: var(--green); }
+  .qnum-pill.wrong    { background: rgba(239,68,68,0.15);  border-color: var(--red);   color: var(--red); }
+
+  /* thin progress bar */
+  .progress-strip { height: 3px; background: var(--border); }
+  .progress-fill  { height: 100%; background: linear-gradient(90deg, var(--accent), #7c3aed); transition: width 0.4s ease; }
+
+  /* ── TEST BODY ── */
+  .test-body { padding: 20px 20px 100px; }
+
+  .question-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; padding: 26px;
+    max-width: 700px; margin: 0 auto;
+    box-shadow: 0 4px 20px var(--shadow);
+  }
+  .q-meta { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+  .q-num {
+    background: linear-gradient(135deg, var(--accent), #7c3aed);
+    color: white; font-size: 12px; font-weight: 600;
+    border-radius: 7px; padding: 3px 9px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .q-badge { font-size: 11px; font-weight: 500; border-radius: 5px; padding: 3px 7px; }
+  .badge-easy { background: rgba(16,185,129,0.12); color: var(--green); border: 1px solid rgba(16,185,129,0.3); }
+  .badge-med  { background: rgba(245,158,11,0.12); color: var(--yellow); border: 1px solid rgba(245,158,11,0.3); }
+  .badge-hard { background: rgba(239,68,68,0.12);  color: var(--red);    border: 1px solid rgba(239,68,68,0.3); }
+  .q-points   { margin-left: auto; font-size: 12px; color: var(--text3); font-family: 'IBM Plex Mono', monospace; }
+
+  .q-text { font-size: 15px; line-height: 1.75; margin-bottom: 22px; }
+  .choices { display: flex; flex-direction: column; gap: 9px; }
+  .choice-btn {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 16px;
+    text-align: left; cursor: pointer;
+    font-family: inherit; font-size: 14px; color: var(--text);
+    display: flex; align-items: flex-start; gap: 10px;
+    transition: all 0.18s; line-height: 1.5;
+  }
+  .choice-btn:hover:not(.disabled) { border-color: var(--accent); background: rgba(59,130,246,0.07); }
+  .choice-btn.selected { border-color: var(--accent); background: rgba(59,130,246,0.13); }
+  .choice-btn.correct  { border-color: var(--green);  background: rgba(16,185,129,0.12); color: var(--green); }
+  .choice-btn.wrong    { border-color: var(--red);    background: rgba(239,68,68,0.10);  color: var(--red); opacity: 0.85; }
+  .choice-btn.disabled { cursor: default; }
+  .choice-letter {
+    min-width: 24px; height: 24px; border: 1px solid var(--text3);
+    border-radius: 5px; display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; font-family: 'IBM Plex Mono', monospace;
+    flex-shrink: 0; margin-top: 1px; transition: all 0.18s;
+  }
+  .choice-btn.selected .choice-letter { background: var(--accent);  border-color: var(--accent);  color: white; }
+  .choice-btn.correct  .choice-letter { background: var(--green);   border-color: var(--green);   color: white; }
+  .choice-btn.wrong    .choice-letter { background: var(--red);     border-color: var(--red);     color: white; }
+
+  /* ── BOTTOM NAV ── */
+  .test-bottom {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 20;
+    background: var(--header-bg);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid var(--border);
+    padding: 10px 20px;
+    display: flex; align-items: center; gap: 10px;
+    max-width: 100%;
+  }
+  .btn-nav {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 9px; padding: 9px 18px;
+    font-family: inherit; font-size: 13px; font-weight: 500;
+    color: var(--text); cursor: pointer; transition: all 0.18s;
+  }
+  .btn-nav:hover    { border-color: var(--accent); color: var(--accent2); }
+  .btn-nav:disabled { opacity: 0.3; cursor: default; }
+  .btn-nav.next-btn {
+    background: linear-gradient(135deg, var(--accent), #7c3aed);
+    border: none; color: white;
+  }
+  .btn-nav.next-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(59,130,246,0.35); }
+
+  /* FINISH button – orange, always visible, right side */
+  .btn-finish {
+    margin-left: auto;
+    background: linear-gradient(135deg, var(--finish), #dc2626);
+    border: none; border-radius: 9px;
+    padding: 9px 18px;
+    font-family: inherit; font-size: 13px; font-weight: 700;
+    color: white; cursor: pointer; transition: all 0.2s;
+    white-space: nowrap;
+    box-shadow: 0 2px 12px rgba(249,115,22,0.35);
+  }
+  .btn-finish:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(249,115,22,0.5); }
+
+  /* ── RESULT ── */
+  #screen-result { align-items: center; justify-content: center; padding: 40px 20px 80px; gap: 0; }
+  .result-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 20px; padding: 36px;
+    max-width: 500px; width: 100%; text-align: center;
+    box-shadow: 0 8px 32px var(--shadow);
+  }
+  .result-icon {
+    width: 76px; height: 76px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 34px; margin: 0 auto 16px;
+  }
+  .result-icon.pass { background: rgba(16,185,129,0.18); }
+  .result-icon.fail { background: rgba(239,68,68,0.14); }
+  .result-card h2   { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+  .result-score-wrap {
+    margin: 20px 0; padding: 18px;
+    background: var(--surface2); border-radius: 12px; border: 1px solid var(--border);
+  }
+  .result-score-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+  .result-score {
+    font-size: 54px; font-weight: 700; font-family: 'IBM Plex Mono', monospace; line-height: 1;
+  }
+  .result-score.pass-color { color: var(--green); }
+  .result-score.fail-color { color: var(--red); }
+  .result-score-max { font-size: 18px; color: var(--text3); font-family: 'IBM Plex Mono', monospace; }
+  .result-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+  .result-stat { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 11px; }
+  .result-stat .s-val { font-size: 20px; font-weight: 700; font-family: 'IBM Plex Mono', monospace; }
+  .result-stat .s-lbl { font-size: 11px; color: var(--text3); margin-top: 3px; }
+  .result-msg {
+    font-size: 13px; line-height: 1.6; color: var(--text2);
+    border-radius: 10px; padding: 13px 15px; margin-bottom: 20px;
+    background: rgba(239,68,68,0.07); border: 1px solid rgba(239,68,68,0.2);
+  }
+  .result-msg.pass-msg { background: rgba(16,185,129,0.07); border-color: rgba(16,185,129,0.2); }
+  .btn-action {
+    width: 100%; border-radius: 10px;
+    padding: 13px; font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s; margin-bottom: 10px;
+    font-family: inherit;
+  }
+  .btn-action.primary { background: linear-gradient(135deg, var(--accent), #7c3aed); border: none; color: white; }
+  .btn-action.secondary { background: var(--surface2); border: 1px solid var(--border); color: var(--text); }
+  .btn-action:hover { transform: translateY(-1px); }
+
+  .footer {
+    padding: 14px 20px; text-align: center;
+    font-size: 12px; color: var(--text3);
+    border-top: 1px solid var(--border);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .footer span { color: var(--accent2); }
+
+  .fade-in { animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body>
+<div class="stars" id="stars-bg"></div>
+
+<!-- Theme toggle -->
+<button class="theme-btn" onclick="toggleTheme()" id="theme-btn">🌙 Qorong'i</button>
+
+<div id="app">
+  <!-- ── LANDING ── -->
+  <div id="screen-landing" class="screen active">
+    <div class="logo-badge fade-in">
+      <div class="logo-icon">⚛</div>
+      <div class="logo-title">FIZIKA II</div>
+      <div class="logo-sub">TATU · Yakuniy Nazorat Testi</div>
+    </div>
+    <div class="landing-card fade-in">
+      <h2>Test haqida ma'lumot</h2>
+      <p>Ushbu test II semestr fizika fanidan bilimingizni tekshiradi. Test boshlangach vaqtni to'xtatib bo'lmaydi.</p>
+      <div class="info-grid">
+        <div class="info-item"><div class="lbl">Savollar</div><div class="val">18 ta</div></div>
+        <div class="info-item"><div class="lbl">Vaqt</div><div class="val">60 min</div></div>
+        <div class="info-item"><div class="lbl">Maks. ball</div><div class="val">50</div></div>
+        <div class="info-item"><div class="lbl">O'tish bali</div><div class="val">30</div></div>
+      </div>
+      <div class="form-group">
+        <label>Ism va familiyangizni kiriting</label>
+        <input type="text" id="student-name" placeholder="Masalan: Aminjonov Abubakir" autocomplete="off">
+      </div>
+      <button class="btn-start" onclick="startTest()">Testni boshlash →</button>
+    </div>
+  </div>
+
+  <!-- ── TEST ── -->
+  <div id="screen-test" class="screen">
+    <div class="test-header">
+      <div class="header-top">
+        <div class="header-name" id="header-name">—</div>
+        <div class="timer" id="timer">⏱ 60:00</div>
+      </div>
+      <!-- Q number pills -->
+      <div class="q-numbers-row" id="q-numbers-row"></div>
+      <!-- progress strip -->
+      <div class="progress-strip"><div class="progress-fill" id="progress-bar" style="width:0%"></div></div>
+    </div>
+
+    <div class="test-body">
+      <div class="question-card fade-in" id="question-card"></div>
+    </div>
+
+    <!-- Fixed bottom nav -->
+    <div class="test-bottom">
+      <button class="btn-nav" id="btn-prev" onclick="goPrev()">← Oldingi</button>
+      <button class="btn-nav next-btn" id="btn-next" onclick="goNext()">Keyingi →</button>
+      <button class="btn-finish" onclick="onFinishClick()">✓ Yakunlash</button>
+    </div>
+  </div>
+
+  <!-- ── RESULT ── -->
+  <div id="screen-result" class="screen">
+    <div class="result-card fade-in" id="result-card"></div>
+  </div>
+
+  <div class="footer">TATU · Fizika II · <span>Aminjonov Abubakir</span></div>
+</div>
+
+<script>
+// ══════════════ QUESTION BANK ══════════════
+const QUESTIONS = {
+  easy: [
+    { id:"e1",  q:"Muhit sindirish ko'rsatkichining tushayotgan yorug'lik chastotasiga bog'liqligi … deb ataladi.", opts:["Interferensiya","Dispersiya","Polyarisatsiya","Fotoeffekt"], ans:1 },
+    { id:"e2",  q:"Quyidagi tabiat hodisalaridan qaysi biri yorug'lik dispersiyasi bilan tushuntiriladi?", opts:["Kamalak hosil bo'lishi","Yarim soya hosil bo'lishi","Sadaf idishda ranglarning o'ynashi","Sovun pufagining kamalak ranglariga bo'yalishi"], ans:0 },
+    { id:"e3",  q:"Shaffof muhitda tarqalayotgan ko'zga ko'rinuvchi yorug'lik to'lqinlaridan qaysi birining tezligi eng katta bo'ladi?", opts:["Binafsha","Qizil","Ko'k","Sariq"], ans:1 },
+    { id:"e4",  q:"Quyida keltirilgan qaysi nurlar uchun yig'uvchi linzaning fokus masofasi eng katta bo'ladi?", opts:["Ko'k","Yashil","Qizil","Binafsha"], ans:2 },
+    { id:"e5",  q:"Yorug'lik rangi uning qaysi parametriga bog'liq?", opts:["Amplituda","Chastota","Tezlik","To'lqin uzunligi"], ans:1 },
+    { id:"e6",  q:"Zangori shisha orqali qizil qog'ozga qaralsa, u qanday rangda ko'rinadi?", opts:["Qora","Qizil","Ko'k","Yashil"], ans:0 },
+    { id:"e7",  q:"Turmalin kristallardan tabiiy nur o'tganda, uning intensivligi bo'yicha qanday maksimal qismi qutblangan nur bo'lib o'tadi?", opts:["0,75","0,5","0,25","0,125"], ans:1 },
+    { id:"e8",  q:"Yorug'lik to'lqini bo'ylama to'lqinmi yoki ko'ndalang to'lqin?", opts:["Bo'ylama","Ham ko'ndalang, ham bo'ylama","Ko'ndalang","To'lqin uzunligiga bog'liq"], ans:2 },
+    { id:"e9",  q:"Quyidagi hodisalardan qaysi biri yorug'lik to'lqinining ko'ndalangligini tasdiqlaydi?", opts:["Qutblanish","Difraksiya","Interferensiya","Dispersiya"], ans:0 },
+    { id:"e10", q:"Quyidagi to'lqinlarning qaysi birlari qutblanish xususiyatiga ega: 1) tovush to'lqini; 2) radiotо'lqin; 3) yorug'lik to'lqini?", opts:["Faqat 1","Faqat 2","Faqat 3","2 va 3"], ans:3 },
+    { id:"e11", q:"Yorug'lik to'lqinlarining tarqalishda to'g'ri chiziqdan og'ishi va to'siqni aylanib soya sohasiga o'tishi … deb ataladi.", opts:["Interferensiya","Qutblanish","Dispersiya","Difraksiya"], ans:3 },
+    { id:"e12", q:"Keltirilgan hodisalardan qaysilari yorug'likning to'lqin nazariyasi asosida tushuntiriladi: 1) interferensiya; 2) difraksiya; 3) fotoeffekt; 4) qutblanish?", opts:["1, 2, 3","2, 3","1, 2, 4","3, 4"], ans:2 },
+    { id:"e13", q:"Keltirilgan hodisalardan qaysilari yorug'likning difraksiyasi asosida tushuntiriladi: 1) yog' pardasida kamalak; 2) kichik jism soyasida yorug' dog'; 3) Nyuton halqalari; 4) geometrik soya sohasidan og'ish?", opts:["2","4","1 va 2","2 va 4"], ans:3 },
+    { id:"e14", q:"Keltirilgan hodisalardan qaysilari yorug'likning interferensiyasi asosida tushuntiriladi: 1) yog' pardasida kamalak; 2) soyada yorug' dog'; 3) Nyuton halqalari; 4) geometrik soyadan og'ish?", opts:["2","4","1 va 3","2 va 4"], ans:2 },
+    { id:"e15", q:"Quyida keltirilgan nurlarning qaysilari difraksiyalanish xossasiga ega: 1) ko'zga ko'rinadigan yorug'lik; 2) radiotо'lqin; 3) rentgen; 4) infraqizil?", opts:["1, 2","1, 2, 3","1, 2, 3, 4","1, 3, 4"], ans:2 },
+    { id:"e16", q:"Fotoeffekt hodisasida fotoelektronlarning kinetik energiyasining eng katta qiymati nimalarga bog'liq?", opts:["Yorug'lik intensivligiga","Faqat yorug'lik chastotasiga","Faqat chiqish ishiga","Chiqish ishi va yorug'lik chastotasiga"], ans:3 },
+    { id:"e17", q:"Fotoeffekt uchun Eynshteyn tenglamasi qaysi qonunning qo'llanishidir?", opts:["Energiyaning saqlanish qonuni","Impulsning saqlanish qonuni","Impuls momentining saqlanish qonuni","Zaryadning saqlanish qonuni"], ans:0 },
+    { id:"e18", q:"Quyidagi hodisalardan qaysi biri yorug'likning kvant nazariyasi asosida tushuntiriladi?", opts:["Interferensiya","Difraksiya","Dispersiya","Fotoeffekt"], ans:3 },
+    { id:"e19", q:"Fotoeffekt hodisasida yorug'lik intensivligini 4 marta kamaytirsak, 1 s da ajralib chiqayotgan elektronlar soni qanday o'zgaradi?", opts:["2 marta kamayadi","O'zgarmaydi","4 marta ortadi","4 marta kamayadi"], ans:3 },
+    { id:"e20", q:"Metallga tushayotgan yorug'lik chastotasi 2 marta oshirilsa, undan chiqadigan fotoelektronlar soni qanday o'zgaradi?", opts:["2 marta kamayadi","O'zgarmaydi","2 marta ortadi","6,62 marta ortadi"], ans:1 },
+    { id:"e21", q:"Yorug'lik intensivligi kvant nazariya bo'yicha nimalarga bog'liq?", opts:["Fotonlar soniga va energiyasiga","Foton impulsiga","Foton energiyasiga","Foton chastotasiga"], ans:0 },
+    { id:"e22", q:"Kogerentlik sharti:", opts:["To'lqin jadalligi bir xil; to'lqin uzunligi bir xil","To'lqin chastotasi bir xil; fazalar farqi o'zgarmas","Fazalar farqi o'zgarmas; jadalligi bir xil","Fazalar farqi o'zgaruvchan, to'lqin uzunligi bir xil"], ans:1 },
+    { id:"e23", q:"Nyuton xalqalarining hosil bo'lishi qaysi hodisa orqali tushuntiriladi?", opts:["Difraksiya","Qutblanish","Interferensiya","Qaytish va sinish"], ans:2 },
+    { id:"e24", q:"Elektromagnitlanishning korpuskulyar xususiyati qaysi hodisa orqali tasdiqlanadi?", opts:["Fotoeffekt","Interferensiya","Difraksiya","Qutblanish"], ans:0 },
+    { id:"e25", q:"Yorug'lik nurini ko'ndalangligini qaysi hodisa tasdiqlaydi?", opts:["Difraksiya","Dispersiya","Interferensiya","Qutblanish"], ans:3 },
+    { id:"e26", q:"Yupqa sovun pufagining har xil ranglanishi qaysi yorug'lik hodisasi orqali tushuntiriladi?", opts:["Difraksiya","Qutblanish","Interferensiya","Qaytish"], ans:2 },
+    { id:"e27", q:"Sindirish ko'rsatkichining yorug'lik chastotasiga bog'liqligi bu …", opts:["Difraksiya","Qutblanish","Interferensiya","Dispersiya"], ans:3 },
+    { id:"e28", q:"Prizmada eng katta sinishga uchraydigan nur:", opts:["Binafsha nur","Qizil nur","Zarg'aldoq nur","Sariq nur"], ans:0 },
+    { id:"e29", q:"Qizil rang bilan yoritilgan jism, yashil rangni qaytarish xususiyatiga ega bo'lganda, shaffof bo'lmagan jismning rangi qanday bo'ladi?", opts:["Yashil","Qizil","Qora","Ko'k"], ans:2 },
+    { id:"e30", q:"Oq yorug'lik bilan yoritilganda, yashil rangini qaytarish xususiyatiga ega bo'lgan shaffof bo'lmagan jismning rangi qanday?", opts:["Yashil","Qizil","Qora","Ko'k"], ans:0 },
+    { id:"e31", q:"Qutblagichdan o'tgan tabiiy yorug'lik jadalligi necha marta kamayadi?", opts:["2 marta","4 marta","8 marta","6 marta"], ans:0 },
+    { id:"e32", q:"Quyidagi elektromagnit nurlanishning qaysi biri eng qisqa to'lqin uzunligiga ega?", opts:["Rentgen","Infraqizil","Ultrabinafsha","Yorug'lik nuri"], ans:0 },
+    { id:"e33", q:"Quyida keltirilganlarning qaysi birida elektromagnit to'lqinlar to'lqin uzunliklari kamayadigan tartibda berilgan?", opts:["Ultrabinafsha, yorug'lik, radiotо'lqinlar","Radiotо'lqinlar, yorug'lik, ultrabinafsha","Rentgen, radiotо'qinlar, yorug'lik","Gamma-nurlanish, yorug'lik, rentgen"], ans:1 },
+    { id:"e34", q:"Quyida keltirilgan elektromagnit nurlanish turlarining qaysi biri eng katta to'lqin uzunligiga ega?", opts:["Rentgen","Ultrabinafsha","Qizil","Infraqizil"], ans:3 },
+    { id:"e35", q:"Frenel Guygens prinsipini quyidagicha to'ldirdi:", opts:["Ikkilamchi to'lqinlarning interferensiyasi","Ikkilamchi to'lqinlarning difraksiyasi","Ikkilamchi to'lqinlarning og'ishi","Birinchi to'lqinlarning interferensiyasi"], ans:0 },
+    { id:"e36", q:"Difraksion panjara qaysi nurni katta og'diradi?", opts:["Oq nur","Yashil nur","Qizil nur","Binafsha nur"], ans:3 },
+    { id:"e37", q:"Yorug'lik chastotasi 2 marta orttirilgan fotoelektronlarning kinetik energiyasi qanday o'zgaradi?", opts:["2 marta ortadi","2 martadan ko'proq ortadi","2 marta kamayadi","2 martadan kamroq ortadi"], ans:1 },
+    { id:"e38", q:"Qo'shni Frenel sohalaridan ekrangacha bo'lgan masofa farqi:", opts:["λ","λ/2","λ/4","2λ"], ans:1 },
+    { id:"e39", q:"Diffraksiyon manzaraning markaziy maksimumi:", opts:["Boshqa maksimumlar bilan jadalligi bir xil","Boshqa maksimumlar jadaligidan birmuncha kattaroq","Boshqa maksimumlar jadaligidan ancha katta","Boshqa minimumidan jadaligidan ancha katta"], ans:2 },
+    { id:"e40", q:"Absolyut qora jismning harorati 2 marta ortdi. Bunda energiya nurlanishi ….", opts:["16 marta kamayadi","4 marta kamayadi","16 marta ortadi","4 marta ortadi"], ans:2 },
+  ],
+  medium: [
+    { id:"m1",  q:"Biror modda uchun fotoeffektning qizil chegarasi 5·10¹⁴ Hz bo'lsa, shu moddaning fotoelektronlarining chiqish ishi necha joul bo'ladi? (h=6,6·10⁻³⁴ J·s)", opts:["2,2·10⁻¹⁹","3,3·10⁻¹⁹","6,6·10⁻¹⁹","3·10⁻²⁰"], ans:1 },
+    { id:"m2",  q:"Elektronlarning chiqish ishi 3 eV bo'lgan metall sirtiga 5 eV energiyali foton tushganda, fotoelektronlarning maksimal kinetik energiyasi (eV)?", opts:["1","2","3","5"], ans:1 },
+    { id:"m3",  q:"Fotoelementga tushayotgan nurlanish chastotasi 2 marta kamaydi. Chiqish ishi hisobga olinmasa, fototokni to'xtatuvchi kuchlanish qanday bo'ladi?", opts:["2 marta ortadi","2 marta kamayadi","O'zgarmaydi","4 marta ortadi"], ans:1 },
+    { id:"m4",  q:"Chiqish ishi 2,4 eV bo'lgan Litiydan uzulib chiqqan fotoelektronlarning maksimal kinetik energiyasi 1,74 eV bo'lishi uchun qanday chastotali (Hz) yorug'lik kerak? (h=6,63·10⁻³⁴ J·s)", opts:["1,6·10⁻¹⁹","1,2·10¹⁵","1·10¹⁵","1,4·10¹⁴"], ans:1 },
+    { id:"m5",  q:"Absolyut qora jismning nur chiqarish qobiliyati Re=10 kVt/m² bo'lganda, uning temperaturasi T (K) topilsin. (σ=5,67·10⁻⁸ Vt/(m·K)⁴)", opts:["948","748","648","548"], ans:0 },
+    { id:"m6",  q:"Absolyut qora jism nurlanishning maksimum energiyasi λ=0,6 µm to'lqin uzunlikka to'g'ri keladi. Jism temperaturasi T topilsin. (b=2,90·10⁻³ m·K)", opts:["4800 K","1740 K","3500 K","2300 K"], ans:0 },
+    { id:"m7",  q:"Fotonning massasi tinch turgan elektron massasiga teng bo'lishi uchun, u necha MeV energiyaga ega bo'lishi kerak? (mₑ=9,1·10⁻³¹ kg)", opts:["0,24","0,44","0,51","0,61"], ans:2 },
+    { id:"m8",  q:"Kislorod atomini ionlashtirish uchun 14 eV energiya zarur. Ionlashtiruvchi nurlanishning chastotasini toping.", opts:["34·10¹⁵ Hz","3,4·10¹⁵ Hz","2·10¹⁶ Hz","17·10¹⁵ Hz"], ans:1 },
+    { id:"m9",  q:"Absolyut qora jismning nurlanish qobiliyatini 16 marotaba oshirish uchun uning termodinamik temperaturasini necha marta oshirish kerak?", opts:["2","4","8","16"], ans:0 },
+    { id:"m10", q:"Impuls'si 2·10⁻²⁷ kg·m/s bo'lgan fotonning energiyasini aniqlang (J).", opts:["1,5·10⁻¹⁹","6·10⁻¹⁹","3·10⁻¹⁹","1,5·10⁻²⁰"], ans:1 },
+    { id:"m11", q:"Rentgen trubkasidan nurlanayotgan rentgen nurlarining chastotasi 10,8·10¹⁸ Hz bo'lsa, trubka qanday kuchlanish (kV) ostida ishlayotgan? (h=6,63·10⁻³⁴ J·s)", opts:["4,5","45","410","144"], ans:1 },
+    { id:"m12", q:"Rentgen trubkasida potensiallar ayirmasi 66,3 kV bo'lganda, trubkadan chiqadigan rentgen nurlari chastotasining maksimum qiymati?", opts:["6,6·10¹⁸","1,6·10¹⁹","4·10¹⁸","6,6·10¹⁶"], ans:0 },
+    { id:"m13", q:"Sindirish ko'rsatkichi 1,732 bo'lgan shishadan qaytgan yorug'likning to'la qutblanish burchagi aniqlansin.", opts:["30°","45°","60°","90°"], ans:2 },
+    { id:"m14", q:"Polyarizator va analizator orqali o'tgan tabiiy yorug'likning intensivligi 4 marta kamayishi uchun ularning bosh tekisliklari o'rtasidagi burchak? (yutilish hisobga olinmasin)", opts:["30°","45°","60°","90°"], ans:1 },
+    { id:"m15", q:"Chiqish ishi 1,2 eV bo'lgan metal plastina energiyasi 3,6 eV bo'lgan fotonlar bilan uzoq vaqt yoritilsa, necha volt potentsialgacha zaryadlanadi?", opts:["4,8","1,2","2,4","3,6"], ans:2 },
+    { id:"m16", q:"Natriy uchun fotoeffektning qizil chegarasi λ₀=500 nm bo'lsa, elektronlarning natriydan chiqish ishi A aniqlansin. (h=6,63·10⁻³⁴ J·s)", opts:["0,5 eV","2,49 eV","1,13 eV","1,49 eV"], ans:1 },
+    { id:"m17", q:"Nikel uchun fotoeffektning qizil chegarasi qanday (m)? Nikel uchun chiqish ishi 5 eV.", opts:["5·10⁻⁷","2,3·10⁻⁵","2,5·10⁻⁷","1·10⁻⁶"], ans:2 },
+    { id:"m18", q:"Absolyut qora jismning energetik yorituvchanligi R_e=10 kVt/m² bo'ladigan harorat aniqlansin (K).", opts:["608","648","700","1535"], ans:1 },
+    { id:"m19", q:"t=0°C haroratda qora jism energetik yorituvchanligi spektral zichligining maksimumi qanday to'lqin uzunligiga mos keladi (µm)?", opts:["10,6","9,4","7,8","16,6"], ans:0 },
+    { id:"m20", q:"Tebranish davri T=10⁻¹⁴ s bo'lgan to'lqin uzunligi λ (µm) ni toping. (c=3·10⁸ m/s)", opts:["3 µm","8 µm","7 µm","2 µm"], ans:0 },
+    { id:"m21", q:"Kondensator sig'imi 200 pF va g'altak induktivligi L=2·10⁻⁴ Gn bo'lgan tebranish konturi qanday to'lqin uzunligiga (m) sozlangan?", opts:["377","288","314","628"], ans:0 },
+    { id:"m22", q:"Tebranish kontturi sig'imi C=888 pF bo'lgan kondensatordan va induktivligi L=2 mGn bo'lgan g'altakdan iborat. Qanday to'lqin uzunligiga (m) sozlangan?", opts:["2510","3480","1260","1720"], ans:0 },
+    { id:"m23", q:"Absolyut qora jismning integral nurlanish quvvati 5,67·10⁷ Vt va λmax=0,50 µm. Nur chiqarayotgan sirtni yuzasi (m²) topilsin.", opts:["5,67","2,835","11,34","0,88"], ans:0 },
+    { id:"m24", q:"Agar ikkinchi va yigirmanchi qorong'i Nyuton halqalari o'rtasidagi masofa 4,8 mm bo'lsa, uchinchi va o'n oltinchi qorong'i halqalar o'rtasidagi masofa qanchaga teng?", opts:["0,36 mm","3,6 mm","5,4 mm","36 mm"], ans:1 },
+    { id:"m25", q:"To'lqin uzunligi 0,5 mkm yorug'lik nuri difraksion panjaraga normal tushmoqda. Ikkinchi tartibdagi maksimum 90° ostida kuzatilsa, difraksion panjara doimiysi?", opts:["2 mkm","3 mkm","1 mkm","4 mkm"], ans:2 },
+    { id:"m26", q:"Agar to'lqin uzunligi λ=2 m va manba tebranish chastotasi ν=725 Hz bo'lsa, suvdagi tovush tezligini aniqlang.", opts:["1050","1250","1350","1450"], ans:3 },
+    { id:"m27", q:"Agar chastotasi ν=500 Hz bo'lgan to'lqin υ=400 m/s tezlikda tarqalayotgan bo'lsa, bir-biridan x=40 sm masofadagi ikki nuqta fazalarining farqini aniqlang.", opts:["π/3","π/4","π","2π"], ans:2 },
+    { id:"m28", q:"Suvdagi tovushning tezligi υ=1450 m/s bo'lsa, ν=250 Hz chastotali tebranish natijasida hosil bo'lgan suvdagi tovush to'lqinining uzunligi λ (m)?", opts:["5,8","7,7","9,2","10,5"], ans:0 },
+    { id:"m29", q:"Vakuumda chastotasi 10 MHz bo'lgan elektromagnit to'lqin uzunligini aniqlang (m).", opts:["10","5","30","3"], ans:2 },
+    { id:"m30", q:"Ikkita interferension monoxromatik to'lqinning yo'llar farqi λ/6 ga teng. Tebranishlarning fazalar farqi qanday?", opts:["π/3","π/4","π/2","π/6"], ans:0 },
+    { id:"m31", q:"3,31·10⁻²⁷ kg·m/s impulsli fotonning chastotasini aniqlang. (h=6,63·10⁻³⁴ J·s)", opts:["2·10¹⁵","2·10¹⁴","1,5·10¹⁵","3·10¹⁴"], ans:0 },
+    { id:"m32", q:"Difraksion panjara doimiysi 2·10⁻⁴ sm bo'lgan panjaraga monoxromatik nur normal tushmoqda. 30° burchak ostida ikkinchi maksimum kuzatilsa, to'lqin uzunligi?", opts:["2,8·10⁻⁷ m","10·10⁻⁷ m","5·10⁻⁷ m","2,5·10⁻⁷ m"], ans:2 },
+    { id:"m33", q:"Absolyut qora jismning harorati 2 marta ortdi. Bunda energiya nurlanishi qanday o'zgaradi?", opts:["16 marta kamayadi","4 marta kamayadi","16 marta ortadi","4 marta ortadi"], ans:2 },
+  ],
+  hard: [
+    { id:"h1",  q:"To'lqin uzunligi qanday bo'lgan yorug'lik platinadan fotoelektronlarni 1,6·10⁶ m/s tezlik bilan ajratib chiqaradi? (Ach=5,3 eV)", opts:["10·10⁻⁹ m","98,6·10⁻⁹ m","6,63·10⁻¹⁰ m","20·10⁻⁸ m"], ans:1 },
+    { id:"h2",  q:"Volfram sirtiga to'lqin uzunligi 220 nm bo'lgan yorug'lik tushmoqda. Volfram uchun chiqish ishi 4,50 eV bo'lsa, uchib chiqqan elektronlarning eng katta tezligi (km/s)?", opts:["430","6150","630","6300"], ans:2 },
+    { id:"h3",  q:"Quvvati 20 W bo'lgan lazer sekundiga 10²⁰ ta foton chiqaradi. Nurlanishning to'lqin uzunligi (µm).", opts:["1,2","0,99","0,88","0,2"], ans:1 },
+    { id:"h4",  q:"Qoraytirilgan sharcha T₁=300 K dan T₂=293 K gacha soviydi. Energetik yoritilganlik spektri zichligini maksimumiga to'g'ri keladigan to'lqin uzunlik qanchaga o'zgaradi?", opts:["1,6·10⁻⁶ m","4,8·10⁻⁷ m","1,2·10⁻⁹ m","2,3·10⁻⁷ m"], ans:3 },
+    { id:"h5",  q:"Chastotasi 4,5·10¹⁴ Hz bo'lgan yorug'lik fotonining massasi qanday (kg)? (h=6,63·10⁻³⁴ J·s)", opts:["6,62·10⁻³⁶","1,53·10⁻³⁶","33·10⁻³⁶","3,3·10⁻³⁶"], ans:3 },
+    { id:"h6",  q:"Davri d bo'lgan difraksion panjaraga to'lqin uzunligi λ bo'lgan monoxromatik parallel nurlar tik tushmoqda. Birinchi bosh maksimum burchagi φ uchun qaysi shart bajarilishi kerak?", opts:["sinφ = λ/d","sinφ = d/λ","cosφ = λ/d","cosφ = d/λ"], ans:0 },
+    { id:"h7",  q:"Yung tajribasida λ=6·10⁻⁵ sm bo'lgan monoxromatik yorug'lik bilan yoritilgan teshiklar orasidagi masofa 1 mm va teshikdan ekrangacha 3 m. Uchta birinchi yorug' yo'llarning vaziyati topilsin.", opts:["1,8 mm; 3,6 mm; 5,4 mm","3,8 mm; 1,8 mm; 5,4 mm","5,4 mm; 1,8 mm; 3,6 mm","5,4 mm; 3,6 mm; 1,8 mm"], ans:0 },
+    { id:"h8",  q:"Nyuton halqalarini hosil qiladigan qurilma monoxromatik yorug'lik bilan yoritilmoqda. Ikki qo'shni qora halqalarning radiuslari 4,0 mm va 4,38 mm. Linzaning egrilik radiusi 6,4 m. Tartib nomerlari va to'lqin uzunligi topilsin.", opts:["k₁=3, k₂=6, λ=5·10⁻⁶ m","k₁=5, k₂=6, λ=5·10⁻⁷ m","k₁=6, k₂=3, λ=0,5·10⁻⁶ m","k₁=6, k₂=5, λ=0,5·10⁻⁷ m"], ans:1 },
+    { id:"h9",  q:"Nyuton halqasi yassi shisha bilan egrilik radiusi 8,6 m bo'lgan linza o'rtasida hosil qilingan. To'rtinchi qorong'i halqaning diametri 9 mm. Tushayotgan yorug'likning to'lqin uzunligi topilsin.", opts:["λ=0,589·10⁻⁷ m","λ=5,89·10⁻⁷ m","λ=58,9·10⁻⁷ m","λ=589·10⁻⁷ m"], ans:1 },
+    { id:"h10", q:"Beshinchi va yigirma beshinchi yorug' Nyuton halqalari o'rtasidagi masofa 9 mm. Linzaning egrilik radiusi 15 m. Monoxromatik yorug'likning to'lqin uzunligi topilsin.", opts:["λ=0,675·10⁻⁷ m","λ=6,75·10⁻⁷ m","λ=67,5·10⁻⁷ m","λ=675·10⁻⁷ m"], ans:1 },
+    { id:"h11", q:"Tirqishga to'lqin uzunligi λ monoxromatik yorug'likning parallel dastasi normal tushadi. Tirqish eni 6λ. Yorug'likning uchinchi difraksion minimumi qanday burchak ostida kuzatiladi?", opts:["30°","45°","60°","90°"], ans:1 },
+    { id:"h12", q:"Ikkinchi tartibli spektrdagi qizil chiziqni (λ=7·10⁻⁷ m) ko'rmoq uchun ko'rish trubasini kollimator o'qiga 30° burchak bilan o'rnatishga to'g'ri kelsa, difraksion panjara doimiysi va 1 sm ga chizilgan shtrixlar soni?", opts:["d=2,8·10⁻³ m; N₀=357 sm⁻¹","d=2,8·10⁻⁴ m; N₀=35700 sm⁻¹","d=2,8·10⁻⁵ m; N₀=357 sm⁻¹","d=2,8·10⁻⁶ m; N₀=3570 sm⁻¹"], ans:3 },
+    { id:"h13", q:"Agar difraksion panjara doimiysi 2 µm bo'lsa, natriy sariq chizig'ining (λ=5890 Å) eng katta spektr tartibi topilsin.", opts:["3","6","9","12"], ans:0 },
+    { id:"h14", q:"Shishadan qaytgan nurning 30° sindirish burchagida to'la qutblanishi uchun shishaning sindirish ko'rsatkichi nimaga teng?", opts:["n=0,577","n=0,73","n=1,577","n=1,73"], ans:3 },
+    { id:"h15", q:"Impuls'si v=10 Mm/s tezlikka ega bo'lgan elektronning impuls'siga teng bo'lgan fotonning to'lqin uzunligi λ aniqlansin.", opts:["53 pm","63 pm","73 pm","86 pm"], ans:2 },
+    { id:"h16", q:"Agar sochilishda to'lqin uzunligining o'zgarishi Δλ=3,62 pm bo'lsa, erkin elektron bilan to'qnashgan fotonning sochilish burchagi θ aniqlansin.", opts:["120°","90°","60°","45°"], ans:0 },
+    { id:"h17", q:"Foton to'lqin uzunligi λ elektronning Kompton to'lqin uzunligi λc ga teng. Fotonning energiyasi E aniqlansin.", opts:["2,1 MeV","1,8 MeV","1,3 MeV","0,511 MeV"], ans:3 },
+    { id:"h18", q:"Kumush 3·10¹⁵ Hz chastotali nurlanish bilan yoritilganida undan uchib chiqayotgan fotoelektronlarning maksimal tezligi (m/s)? (A=4,3 eV; h=6,63·10⁻³⁴ J·s; m=9,1·10⁻³¹ kg)", opts:["1,6·10⁵","1,5·10⁶","1,8·10⁵","1,7·10⁶"], ans:3 },
+    { id:"h19", q:"Rux plastinkaga to'lqin uzunligi λ=220 nm bo'lgan monoxromatik yorug'lik tushadi. Fotoelektronlarning maksimal tezligi aniqlansin (km/s). (h=6,63·10⁻³⁴ J·s)", opts:["440","660","760","960"], ans:2 },
+    { id:"h20", q:"Panjara birinchi tartibli kaliy spektr chiziqlarini (λ₁=4044 Å va λ₂=4047 Å) ajrata oladigan bo'lsa, difraksion panjara doimiysi nimaga teng? Panjara eni 3 sm.", opts:["d=2,2·10⁻⁵ m","d=22·10⁻⁵ m","d=2,2·10⁻⁶ m","d=22·10⁻⁶ m"], ans:0 },
+    { id:"h21", q:"Agar yorug'lik manbaidan to'lqin sirtgacha bo'lgan masofa 1 m, to'lqin sirtdan kuzatish nuqtasigacha ham 1 m va λ=5·10⁻⁷ m bo'lsa, Frenelning birinchi ikkita zonasi radiuslari?", opts:["r₁=0,5 mm; r₂=1,12 mm","r₁=1 mm; r₂=2,24 mm","r₁=1,5 mm; r₂=3 mm","r₁=2,24 mm; r₂=4,5 mm"], ans:0 },
+    { id:"h22", q:"Pechning harorati T=1200 K bo'lsa, yuzasi S=8 cm² bo'lgan eritish pechining tuynugidan t=1 min vaqtda sochiladigan W energiya aniqlansin (kJ).", opts:["6,67","5,87","4,33","3,65"], ans:0 },
+    { id:"h23", q:"Vakuumda yassi elektromagnit to'lqin x o'qi bo'ylab tarqaladi. H₀=5 mA/m bo'lsa, elektr maydon kuchlanganligi amplitudasi aniqlansin. (ε₀=8,85·10⁻¹² F/m, µ₀=12,56·10⁻⁷ Gn/m)", opts:["1,22","1,38","1,88","2,24"], ans:2 },
+    { id:"h24", q:"Elektromagnit to'lqin nomagnit bo'lgan muhitga o'tishida ε=4, vakuumda to'lqin uzunligi Δλ=50 m ga oshdi. Tebranish chastotasini aniqlang (MHz). (c=3·10⁸ m/s)", opts:["1","2","3","4"], ans:2 },
+    { id:"h25", q:"Bitta tirqishdan hosil bo'lgan difraksiyaning minimumlik sharti (a - tirqish kengligi, k=1,2,3…)?", opts:["a·sinφ = kλ","a·sinφ = (2k+1)λ/2","a·sinφ = (2k+1)λ","a·sinφ = kλ/2"], ans:0 },
+    { id:"h26", q:"Vakuumda yassi elektromagnit to'lqin x o'qi bo'ylab tarqaladi, H₀=10 mA/m. To'lqinning intensivligi I aniqlansin. (ε₀=8,85·10⁻¹² F/m, µ₀=12,56·10⁻⁷ H/m)", opts:["10,5 mkVt/m²","18,8 mkVt/m²","27,7 mkVt/m²","34,3 mkVt/m²"], ans:1 },
+  ]
+};
+
+// ══════════════ STATE ══════════════
+let studentName = "";
+let testQuestions = [];
+let userAnswers = [];
+let currentQ = 0;
+let timerInterval = null;
+let secondsLeft = 3600;
+let testFinished = false;
+
+// ══════════════ THEME ══════════════
+let isDark = true;
+function toggleTheme() {
+  isDark = !isDark;
+  document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+  document.getElementById('theme-btn').textContent = isDark ? '🌙 Qorong\'i' : '☀ Yorug\'';
+  // hide/show stars
+  document.querySelector('.stars').style.display = isDark ? '' : 'none';
+}
+
+// ══════════════ STORAGE ══════════════
+async function getUsed(pool) {
+  try { const r = await window.storage.get('used_' + pool); return r ? JSON.parse(r.value) : []; } catch { return []; }
+}
+async function saveUsed(pool, arr) {
+  try { await window.storage.set('used_' + pool, JSON.stringify(arr)); } catch {}
+}
+
+// ══════════════ PICK QUESTIONS ══════════════
+async function pickQuestions() {
+  const eUsed = await getUsed('easy');
+  const mUsed = await getUsed('medium');
+  const hUsed = await getUsed('hard');
+
+  function pick(pool, usedIds, count) {
+    let avail = pool.filter(q => !usedIds.includes(q.id));
+    if (avail.length < count) avail = pool.slice();
+    const selected = [];
+    const tempAvail = avail.slice();
+    while (selected.length < count && tempAvail.length > 0) {
+      const ri = Math.floor(Math.random() * tempAvail.length);
+      selected.push(tempAvail.splice(ri, 1)[0]);
+    }
+    return selected;
+  }
+
+  const easyPicked  = pick(QUESTIONS.easy,   eUsed, 6);
+  const medPicked   = pick(QUESTIONS.medium,  mUsed, 10);
+  const hardPicked  = pick(QUESTIONS.hard,    hUsed, 2);
+
+  const newE = [...eUsed, ...easyPicked.map(q => q.id)];
+  const newM = [...mUsed, ...medPicked.map(q => q.id)];
+  const newH = [...hUsed, ...hardPicked.map(q => q.id)];
+  await saveUsed('easy',   newE.length > QUESTIONS.easy.length * 2   ? easyPicked.map(q=>q.id) : newE);
+  await saveUsed('medium', newM.length > QUESTIONS.medium.length * 2  ? medPicked.map(q=>q.id)  : newM);
+  await saveUsed('hard',   newH.length > QUESTIONS.hard.length * 2    ? hardPicked.map(q=>q.id)  : newH);
+
+  return [
+    ...easyPicked.map(q => ({ ...q, points: 2, diff: 'easy' })),
+    ...medPicked.map(q  => ({ ...q, points: 3, diff: 'medium' })),
+    ...hardPicked.map(q => ({ ...q, points: 4, diff: 'hard' })),
+  ];
+}
+
+// ══════════════ UI ══════════════
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function formatTime(s) {
+  return String(Math.floor(s/60)).padStart(2,'0') + ':' + String(s%60).padStart(2,'0');
+}
+
+// ══════════════ TIMER ══════════════
+function updateTimer() {
+  const el = document.getElementById('timer');
+  el.textContent = '⏱ ' + formatTime(secondsLeft);
+  el.className = 'timer';
+  if (secondsLeft <= 600) el.classList.add('warning');
+  if (secondsLeft <= 120) el.classList.add('danger');
+  if (secondsLeft <= 0) { clearInterval(timerInterval); finishTest(); return; }
+  secondsLeft--;
+}
+
+// ══════════════ START ══════════════
+async function startTest() {
+  const nameEl = document.getElementById('student-name');
+  const name = nameEl.value.trim();
+  if (!name) {
+    nameEl.style.borderColor = 'var(--red)';
+    nameEl.placeholder = '⚠ Ism kiriting!';
+    setTimeout(() => { nameEl.style.borderColor = ''; nameEl.placeholder = 'Masalan: Aminjonov Abubakir'; }, 2000);
+    return;
+  }
+  studentName = name;
+  testQuestions = await pickQuestions();
+  userAnswers = new Array(18).fill(-1);
+  currentQ = 0;
+  secondsLeft = 3600;
+  testFinished = false;
+
+  document.getElementById('header-name').textContent = '👤 ' + studentName;
+  buildQNumbers();
+  show('screen-test');
+  renderQuestion();
+  clearInterval(timerInterval);
+  timerInterval = setInterval(updateTimer, 1000);
+}
+
+// ══════════════ Q-NUMBER PILLS ══════════════
+function buildQNumbers() {
+  const row = document.getElementById('q-numbers-row');
+  row.innerHTML = testQuestions.map((_, i) =>
+    `<button class="qnum-pill${i===0?' current':''}" id="qp-${i}" onclick="jumpTo(${i})">${i+1}</button>`
+  ).join('');
+}
+
+function updateQNumbers() {
+  testQuestions.forEach((q, i) => {
+    const el = document.getElementById('qp-' + i);
+    if (!el) return;
+    let cls = 'qnum-pill';
+    if (testFinished) {
+      if (userAnswers[i] === q.ans) cls += ' correct';
+      else if (userAnswers[i] !== -1) cls += ' wrong';
+      else if (i === currentQ) cls += ' current';
+    } else {
+      if (i === currentQ) cls += ' current';
+      else if (userAnswers[i] !== -1) cls += ' answered';
+    }
+    el.className = cls;
+  });
+}
+
+// ══════════════ RENDER QUESTION ══════════════
+function renderQuestion() {
+  const q = testQuestions[currentQ];
+  document.getElementById('progress-bar').style.width = (currentQ / testQuestions.length * 100) + '%';
+
+  const diffLabel =
+    q.diff === 'easy'   ? '<span class="q-badge badge-easy">Oson · 2 ball</span>' :
+    q.diff === 'medium' ? '<span class="q-badge badge-med">O\'rta · 3 ball</span>' :
+                          '<span class="q-badge badge-hard">Qiyin · 4 ball</span>';
+
+  const html = `
+    <div class="q-meta">
+      <span class="q-num">Savol ${currentQ + 1}</span>
+      ${diffLabel}
+    </div>
+    <div class="q-text">${q.q}</div>
+    <div class="choices">
+      ${['A','B','C','D'].map((ltr, i) => {
+        let cls = 'choice-btn';
+        if (testFinished) {
+          cls += ' disabled';
+          if (i === q.ans) cls += ' correct';
+          else if (userAnswers[currentQ] === i) cls += ' wrong';
+        } else {
+          if (userAnswers[currentQ] === i) cls += ' selected';
+        }
+        return `<button class="${cls}" onclick="selectAnswer(${i})">
+          <span class="choice-letter">${ltr}</span>
+          <span>${q.opts[i]}</span>
+        </button>`;
+      }).join('')}
+    </div>
+  `;
+
+  const card = document.getElementById('question-card');
+  card.innerHTML = html;
+  card.className = 'question-card fade-in';
+
+  // Nav buttons
+  document.getElementById('btn-prev').disabled = currentQ === 0;
+  const isLast = currentQ === testQuestions.length - 1;
+  const nextBtn = document.getElementById('btn-next');
+  nextBtn.textContent = isLast ? 'Yakunlash ✓' : 'Keyingi →';
+
+  updateQNumbers();
+}
+
+function selectAnswer(i) {
+  if (testFinished) return;
+  userAnswers[currentQ] = i;
+  renderQuestion();
+}
+
+function jumpTo(i) { currentQ = i; renderQuestion(); }
+function goPrev()  { if (currentQ > 0) { currentQ--; renderQuestion(); } }
+function goNext()  {
+  if (testFinished) { if (currentQ < 17) { currentQ++; renderQuestion(); } return; }
+  if (currentQ < testQuestions.length - 1) { currentQ++; renderQuestion(); }
+  else finishTest();
+}
+
+// ══════════════ FINISH ══════════════
+function onFinishClick() {
+  // No confirm – just finish immediately
+  finishTest();
+}
+
+function finishTest() {
+  clearInterval(timerInterval);
+  testFinished = true;
+  renderQuestion();
+  showResult();
+}
+
+// ══════════════ RESULT ══════════════
+function showResult() {
+  let score = 0, correct = 0;
+  testQuestions.forEach((q, i) => {
+    if (userAnswers[i] === q.ans) { score += q.points; correct++; }
+  });
+  const pass = score >= 30;
+  const pct  = Math.round(score / 50 * 100);
+
+  document.getElementById('result-card').innerHTML = `
+    <div class="result-icon ${pass?'pass':'fail'}">${pass?'🎉':'📚'}</div>
+    <h2>${pass ? 'Tabriklaymiz!' : 'Test yakunlandi'}</h2>
+    <p style="color:var(--text2);font-size:13px;margin-bottom:18px;">👤 ${studentName}</p>
+    <div class="result-score-wrap">
+      <div class="result-score-label">Yig'ilgan ball</div>
+      <div class="result-score ${pass?'pass-color':'fail-color'}">${score}<span class="result-score-max"> / 50</span></div>
+      <div style="margin-top:6px;font-size:12px;color:var(--text3);">O'tish bali: 30 · Natija: ${pct}%</div>
+    </div>
+    <div class="result-stats">
+      <div class="result-stat"><div class="s-val" style="color:var(--green)">${correct}</div><div class="s-lbl">To'g'ri</div></div>
+      <div class="result-stat"><div class="s-val" style="color:var(--red)">${18-correct}</div><div class="s-lbl">Noto'g'ri</div></div>
+      <div class="result-stat"><div class="s-val" style="color:var(--accent2)">${18 - userAnswers.filter(a=>a!==-1).length}</div><div class="s-lbl">Javobsiz</div></div>
+    </div>
+    <div class="result-msg ${pass?'pass-msg':''}">
+      ${pass
+        ? `✅ Siz testdan muvaffaqiyatli o'tdingiz! ${score} ball yig'ib, ${pct}% natija ko'rsatdingiz. Ajoyib!`
+        : `❌ Ko'proq o'qing va o'z ustingizda ishlang! Siz ${score} ball yig'dingiz – o'tish uchun kamida 30 ball kerak edi.`
+      }
+    </div>
+    <button class="btn-action primary" onclick="reviewTest()">Xatolarni ko'rish 🔍</button>
+    <button class="btn-action secondary" onclick="restartTest()">Qayta boshlash ↺</button>
+  `;
+  show('screen-result');
+}
+
+function reviewTest() {
+  currentQ = 0;
+  show('screen-test');
+  renderQuestion();
+  updateQNumbers();
+}
+function restartTest() {
+  clearInterval(timerInterval);
+  document.getElementById('student-name').value = '';
+  show('screen-landing');
+}
+
+// ══════════════ STARS ══════════════
+(function() {
+  const wrap = document.getElementById('stars-bg');
+  for (let i = 0; i < 60; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    s.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*100}%;animation-delay:${(Math.random()*3).toFixed(1)}s;animation-duration:${(2+Math.random()*3).toFixed(1)}s`;
+    wrap.appendChild(s);
+  }
+})();
+</script>
+</body>
+</html>
